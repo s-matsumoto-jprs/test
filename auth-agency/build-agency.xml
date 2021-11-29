@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project name="agency" basedir="." default="build.agency" >
+
+    <!-- ==== Properties ==== -->
+
+    <!-- Use Enviroment -->
+    <property environment="env"/>
+
+    <!-- Java build options -->
+    <property name="target" value="1.8"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="source" value="1.8"/>
+    <property name="encoding" value="UTF-8" />
+
+
+    <!-- base directories -->
+    <property name="base.dir" value="." />
+    <property name="workspace" value="${base.dir}" />
+    <property name="appli.base.dir" value="${workspace}/WEB-INF" />
+
+    <!-- source directories -->
+    <property name="source.agency.dir" value="${workspace}/src" />
+
+    <!-- config directories -->
+    <property name="config.agency.dir" value="${appli.base.dir}/config" />
+
+    <!-- build temporary directory -->
+    <property name="build.dir" value="${base.dir}/build" />
+    <property name="build.class.dir" value="${build.dir}/classes" />
+
+    <!-- java library -->
+    <property name="lib.dir" location="${appli.base.dir}/lib" />
+
+    <!-- release temporary directory -->
+    <property name="temp.dir" value="${base.dir}/temp" />
+    <property name="webapp.dir" value="${base.dir}/webapp" />
+
+    <!-- release temporary manifest file -->
+    <property name="manifest.file" value="${temp.dir}/MANIFEST.MF" />
+
+    <!-- web.xml -->
+    <property name="web.xml.name" value="${appli.base.dir}/web.xml" />
+
+    <!-- config dirname -->
+    <condition property="app.config.dir" value="gjp-${release.mode}">
+            <equals arg1="${release.app}" arg2="gjp" />
+    </condition>
+
+    <condition property="app.config.dir" value="gtd-${release.mode}">
+            <equals arg1="${release.app}" arg2="gtd" />
+    </condition>
+
+    <condition property="app.config.dir" value="ojp-${release.mode}">
+            <equals arg1="${release.app}" arg2="ojp" />
+    </condition>
+
+    <!-- war filename -->
+    <condition property="release.war.name" value="${release.app}-agency.war">
+            <equals arg1="${release.mode}" arg2="real" />
+    </condition>
+
+    <condition property="release.war.name" value="${release.app}-tb-agency.war">
+            <equals arg1="${release.mode}" arg2="demo" />
+    </condition>
+
+    <!-- class path -->
+    <property name="class.path" value="ehcache-2.8.3.jar servlet-api.jar slf4j-api-1.6.6.jar slf4j-jdk14-1.6.6.jar log4j-1.2.15.jar" />
+
+
+    <!-- ==== Classpath ==== -->
+
+    <path id="agency.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="ehcache-2.8.3.jar" />
+            <include name="servlet-api.jar" />
+            <include name="slf4j-api-1.6.6.jar" />
+            <include name="slf4j-jdk14-1.6.6.jar" />
+            <include name="log4j-1.2.15.jar" />
+        </fileset>
+        <pathelement path="${build.dir}" />
+    </path>
+
+    <!-- BUILD  ======================================================================= -->
+
+    <target name="build.clean" description="clean build dir">
+        <delete dir="${build.dir}" />
+    </target>
+
+    <target name="temp.clean" description="clean temp dir">
+        <delete dir="${temp.dir}" />
+    </target>
+
+    <target name="webapp.clean" description="clean temp dir">
+        <delete dir="${webapp.dir}" />
+    </target>
+
+    <target name="clean" description="clean"
+            depends="build.clean, temp.clean, webapp.clean" >
+        <delete file="${release.war.name}" />
+    </target>
+
+    <target name="init" description="Initialize directory tree">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${temp.dir}" />
+    </target>
+
+    <target name="compile" description="Compile Source Files">
+        <javac encoding="${encoding}" debug="true" target="${target}"
+               source="${source}"
+               srcdir="${source.agency.dir}"
+               destdir="${build.dir}"
+               includeantruntime="false" memoryInitialSize="256M" fork="yes"
+               memoryMaximumSize="256M">
+            <classpath refid="agency.classpath"/>
+        </javac>
+    </target>
+
+
+    <!-- ==== war build ==== -->
+
+    <target name="build.war" description="Build war file for release">
+        <!-- make webapp dir -->
+        <mkdir dir="${webapp.dir}" />
+        <mkdir dir="${webapp.dir}/WEB-INF" />
+
+        <manifest file="${manifest.file}">
+            <attribute name="Class-Path" value="${class.path}" />
+        </manifest>
+
+        <!-- web.xml -->
+        <copy file="${web.xml.name}" tofile="${webapp.dir}/WEB-INF/web.xml" overwrite="true" />
+
+        <!-- lib directory -->
+        <copy todir="${webapp.dir}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" />
+        </copy>
+
+        <!-- compiled class files -->
+        <copy todir="${webapp.dir}/WEB-INF/classes">
+            <fileset dir="${build.dir}" >
+                <exclude name="**/*.java"/>
+            </fileset>
+            <fileset file="${config.agency.dir}/ehcache.xml" />
+            <fileset file="${config.agency.dir}/ehcache.xsd" />
+            <fileset file="${config.agency.dir}/${app.config.dir}/agency.properties" />
+            <fileset file="${config.agency.dir}/${app.config.dir}/log4j.xml" />
+        </copy>
+
+        <war destfile="${base.dir}/${release.war.name}"
+             manifest="${manifest.file}"
+             duplicate="preserve"
+             webxml="${webapp.dir}/WEB-INF/web.xml">
+            <fileset dir="${webapp.dir}" />
+        </war>
+    </target>
+
+    <target name="build.agency" description="Build agency" >
+        <antcall target="clean" />
+        <antcall target="init" />
+        <antcall target="compile" />
+        <antcall target="build.war" />
+
+        <antcall target="temp.clean" />
+        <antcall target="webapp.clean" />
+        <antcall target="build.clean" />
+    </target>
+</project>

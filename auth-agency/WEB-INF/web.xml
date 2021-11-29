@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+  <display-name>Authentication Agency</display-name>
+  <description>
+     Authentication Agency
+  </description>
+
+  <servlet>
+    <servlet-name>AuthenticationAgency</servlet-name>
+    <servlet-class>jp.co.jprs.AuthenticationAgency</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>AuthenticationAgency</servlet-name>
+    <url-pattern>/AuthenticationAgency</url-pattern>
+  </servlet-mapping>
+
+</web-app>

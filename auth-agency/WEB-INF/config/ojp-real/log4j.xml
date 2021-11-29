@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+  <!-- appenderの設定 -->
+  <appender name="AUTH" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="File" value="/logs/tomcat/agency/current.log" />
+    <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+    <!-- layoutの設定 -->
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"
+             value="%d{yyyy/MM/dd HH:mm:ss} [%p]%m%n" />
+    </layout>
+  </appender>
+
+  <!-- categoryの設定 -->
+  <category name="jp.co.jprs">
+    <priority value="info" />
+    <appender-ref ref="AUTH" />
+  </category>
+  
+  <category name="auth">
+    <priority value="info" />
+    <appender-ref ref="AUTH" />
+  </category>
+</log4j:configuration>
